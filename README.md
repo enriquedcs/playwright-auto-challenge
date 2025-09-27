@@ -23,6 +23,8 @@ The script finishes in less than 4 minutes.
 # How it works
 
 Every single test is located in ./tests folder
+Every Page object is located in ./page-objects
+Utils are available ./utils
 
 run npm install to install all dependenies
 
@@ -32,11 +34,9 @@ All Tests
 npx playwright test
 
 Single Test Solving the challenge
-npx playwright test tests/UIChallengetest.spec
+npx playwright test tests/UIChallengetest.spec.js --headed
 
-# Launch Report
 
-npx playwright show-report
 
 
 
