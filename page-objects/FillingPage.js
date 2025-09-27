@@ -10,6 +10,10 @@ class FillingPage{
         this.downloadLink = page.getByRole('link', { name: 'Download Excel Spreadsheet' })
         this.captchaIframe = page.frameLocator('iframe[title="reCAPTCHA"]')
         this.captchaCheckbox = this.captchaIframe.getByRole('checkbox', { name: "I'm not a robot" })
+        const buttonLocator = page.getByRole('button', { name: 'presentation' })
+        this.playerErrorButton = page.getByRole('button', { name: 'Send Error Log' })
+        this.roundButton = page.getByRole('button', { name: /Round \d+ of 50/i })
+        this.playerErrorElement = page.getByText('Player error')
 
         // Extra Locator for reference
         this.companyNameLabel = 'Company Name'
@@ -55,21 +59,22 @@ class FillingPage{
     }
 
     async fill_field(fieldLabel, value) {
-        const input = await this.findInputByLabel(fieldLabel)
-        await input.waitFor({ state: 'visible', timeout: 15000 })
-        await this.page.waitForFunction(el => el && document.contains(el) && !el.disabled, input)
-        await input.focus()
-        await input.fill('')
-        await input.type(String(value), { delay: 10 })
-        await this.page.waitForTimeout(120)
+        const inputField = this.page.getByRole('textbox', { name: fieldLabel }).first() 
+
+        await inputField.waitFor({ state: 'attached', timeout: 15000 })
+        
+        // Focus and Type 
+        await inputField.focus()
+        await inputField.type(String(value), { delay: 10 })
     }
 
-    // ... (rest of your methods remain the same) ...
+    // Start Challenge
     async startChallenge() {
         await this.startButton.waitFor({ state: 'visible', timeout: 10000 }) 
         await this.startButton.focus()
         await this.page.keyboard.press('Enter')
-        await this.page.waitForLoadState('networkidle')
+        await this.page.waitForTimeout(1000)
+        await this.page.waitForLoadState('domcontentloaded')
     }
 
     async submitData() {
@@ -78,8 +83,69 @@ class FillingPage{
         await submitButton.evaluate(node => node.click())
     }
 
+    async dismissErrorOverlay() {
+        // Check the 'Player error'
+        const isErrorPresent = await this.playerErrorElement.isVisible({ timeout: 2000 })
+    
+        if (isErrorPresent) {
+            console.log("Player error detected. Attempting to restart flow...")
+    
+            // Keep an eye on this probably key 
+            await this.roundButton.click({ timeout: 5000 })
+            
+            // Wait for the Round button to change
+            await this.playerErrorElement.waitFor({ state: 'hidden', timeout: 5000 })
+            
+            // We call startChallenge() to handle the final robust click/focus/press 'Enter' sequence.
+            await this.startChallenge();
+    
+            console.log("Challenge flow reset. Attempting to proceed with Row 1.")
+        }
+        // If no error is present, the function simply exits.
+    }
+
     async checkAndSolveCaptcha() {
-        // ... (checkAndSolveCaptcha method remains the same) ...
+
+        // fail fast if the CAPTCHA is absent.
+        const checkTimeout = 500; 
+        
+        // ature of the CAPTCHA.
+        try {
+            // 1. Check for CAPTCHA presence. If it's not here, this line quickly throws a TimeoutError.
+            // We use state: 'visible' to confirm the pop-up is visually on screen.
+            await this.captchaCheckbox.waitFor({ state: 'visible', timeout: checkTimeout })
+            
+            // --- If execution reaches here, the CAPTCHA is PRESENT ---
+            
+            console.log("🛑 RECAPTCHA DETECTED! Attempting single click bypass...")
+    
+            // 2. Click the checkbox using .check() and force: true.
+            // .check() is the semantic action for checkboxes and force: true bypasses the
+            // iframe/visibility blocks that often prevent a simple click.
+            await this.captchaCheckbox.check({ timeout: 10000, force: true })
+    
+            // 3. Wait for the CAPTCHA element to fully disappear (solved state).
+            try {
+                await this.captchaCheckbox.waitFor({ state: 'hidden', timeout: 10000 })
+                console.log("✅ CAPTCHA successfully dismissed. Resuming loop.")
+            } catch (error) {
+                // This happens if the simple click failed and the image puzzle appeared.
+                console.error("CAPTCHA not solved!");
+                // If the script gets stuck here, you need to stop the loop or integrate a paid solver.
+            }
+    
+        } catch (error) {
+            // Handle the expected quick timeout when the CAPTCHA is NOT present.
+            if (error.name === 'TimeoutError' && error.message.includes(String(checkTimeout))) {
+                // CAPTCHA was absent, so we exit silently and proceed with the loop.
+                return;
+            }
+            
+            // 5. Handle any other unexpected errors
+            console.error("An unexpected error occurred during CAPTCHA check:", error.message);
+            throw error; 
+        }
     }
 }
+    
 module.exports = { FillingPage }

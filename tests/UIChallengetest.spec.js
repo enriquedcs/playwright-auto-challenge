@@ -12,18 +12,23 @@ const config = require('./config.json')
 // Stealth plugin 
 chromium.use(stealth)
 
+
+
 //Bot Detection passthrough Obsolote REMOVE LATER
-//test.use({ userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/79.0.3945.0 Safari 537.36 Secret/<MY_SECRET>' })
+test.use({ userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/79.0.3945.0 Safari 537.36 Secret/<MY_SECRET>' })
 
 test('The Automation Challenge (Stealth Mode)', async () =>
 {
-    let browser;
-    let page;
+    let browser
+    let page
+
+
 
     try {
         // 1. Launch a stealthy Chromium browser instance
         browser = await chromium.launch({ 
             headless: false, // Keep headless=false for debugging
+            slowMo: 100, // Adds 100ms delay
             // Optional: Set a clean, realistic User-Agent here to help
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
         })
@@ -52,8 +57,14 @@ test('The Automation Challenge (Stealth Mode)', async () =>
         //Start the Challenge Timer
         await fillingPage.startChallenge()
 
+        await fillingPage.checkAndSolveCaptcha()
+        await fillingPage.dismissErrorOverlay()
+
         // Wait for unique Round
         await fillingPage.challengeContext.waitFor({ state: 'visible', timeout: 20000 })
+
+        //const firstField = page.getByRole('textbox', { name: "Company Name" }).first();
+        //await firstField.waitFor({ state: 'attached', timeout: 15000 })
 
         //Automation Loop (The Core Logic)
         let rowNumber = 1
@@ -67,24 +78,34 @@ test('The Automation Challenge (Stealth Mode)', async () =>
 
         //Core Logic - Iterate 50 times
         for (const record of challengeData) {
+            
+            if (page.isClosed() || await page.locator('text=Access to this content has been restricted.').isVisible()) {
+                console.error("Challenge stopped: Page closed or Anti-Bot block detected.");
+                break; // Exit the loop gracefully
+            }
+
+            //To avoid Captcha
+            await fillingPage.checkAndSolveCaptcha()
+            await fillingPage.dismissErrorOverlay()
+
             console.log(`Processing Row ${rowNumber} of ${challengeData.length}`)
 
             // Loop through the known labels for the current record
-            for (const label of labels) {
-                const value = record[label]
+            //for (const label of labels) {
+            for (let i = 0; i < 50; i++) {    
+                //const value = record[label]
                 
                 // Check for valid data before filling
-                if (value !== undefined && value !== null) {
-                    // Fills the dynamic field using the static label
-                    await fillingPage.fill_field(label, String(value))
-                }
+                //if (value !== undefined && value !== null) {
+                //    // Fills the dynamic field using the static label
+                //    await fillingPage.fill_field(label, String(value))
+                //}
             }
         
             // Click Submit to process the row and trigger the field changes
             await fillingPage.submitData()
 
-            //To avoid Captcha
-            await fillingPage.checkAndSolveCaptcha()
+            
 
             rowNumber++;
         
