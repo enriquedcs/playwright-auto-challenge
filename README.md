@@ -106,20 +106,9 @@ When reCAPTCHA appears and automatic solving fails:
 3. **Continuation:** After the pause, automation resumes automatically
 4. **Alternative Method:** You can switch to full manual mode by changing the code to use `waitForManualCaptchaSolving()`
 
-## Troubleshooting
 
-### Common Issues
-- **Challenge won't start:** The script includes manual start fallback mode
-- **Fields not filling:** Uses both position-based and label-based strategies
-- **reCAPTCHA blocking:** Multiple detection and solving approaches with manual fallback
-- **Page resets:** Avoids problematic Round button clicks that reset the challenge
 
-### Debug Information
-The script provides detailed console output showing:
-- Field detection strategies
-- CAPTCHA handling attempts  
-- Form filling progress
-- Error recovery actions
+
 
 
 
