@@ -24,7 +24,8 @@ class FillingPage{
         this.captchaCheckbox = this.captchaFrameLocator.getByRole('checkbox', { name: "I'm not a robot" })
         this.captchaCheckboxAlt = this.captchaFrameLocator.locator('#recaptcha-anchor')
         
-        const buttonLocator = page.getByRole('button', { name: 'presentation' })
+        // Obsolote
+        this.buttonLocator = page.getByRole('button', { name: 'presentation' })
         this.playerErrorButton = page.getByRole('button', { name: 'Send Error Log' })
         this.roundButton = page.getByRole('button', { name: /Round \d+ of 50/i })
         this.playerErrorElement = page.getByText('Player error')
@@ -302,7 +303,7 @@ class FillingPage{
     // Start Challenge
     async startChallenge() {
         try {
-            console.log("🚀 Starting the challenge...")
+            console.log("Starting the challenge...")
             
             // Be very specific about which Start button to click
             // Avoid the Round button which resets everything
@@ -310,11 +311,11 @@ class FillingPage{
             
             // Wait for the specific start button (not the round button)
             await specificStartButton.waitFor({ state: 'visible', timeout: 10000 })
-            console.log("✅ Found the correct Start button (not Round button)")
+            console.log("Found the correct Start button (not Round button)")
             
             // Click the start button
             await specificStartButton.click()
-            console.log("✅ Clicked Start button successfully")
+            console.log("Clicked Start button successfully")
             
             // Wait for the challenge to initialize
             await this.page.waitForTimeout(3000)
@@ -344,13 +345,13 @@ class FillingPage{
             }
             
             if (!challengeVerified) {
-                console.log("⚠️ Could not verify challenge started with input fields")
+                console.log("Could not verify challenge started with input fields")
             } else {
-                console.log("🎉 Challenge successfully started and verified!")
+                console.log("Challenge successfully started and verified!")
             }
             
         } catch (error) {
-            console.error("❌ Error starting challenge:", error.message)
+            console.error("Error starting challenge:", error.message)
             
             // Try alternative approach - look for any Start button that's not a Round button
             try {
@@ -365,12 +366,12 @@ class FillingPage{
                     if (text && text.toLowerCase().includes('start') && !text.toLowerCase().includes('round')) {
                         console.log(`Found alternative start button: "${text}"`)
                         await button.click()
-                        console.log("✅ Clicked alternative start button")
+                        console.log("Clicked alternative start button")
                         break
                     }
                 }
             } catch (altError) {
-                console.error("❌ Alternative start method also failed:", altError.message)
+                console.error("Alternative start method also failed:", altError.message)
                 throw new Error("Could not start challenge with any method")
             }
         }
@@ -388,8 +389,8 @@ class FillingPage{
             const isErrorPresent = await this.playerErrorElement.isVisible({ timeout: 200 })
         
             if (isErrorPresent) {
-                console.log("⚠️ Player error detected, but NOT clicking round button to avoid reset loop")
-                console.log("📝 Player errors are often temporary - continuing with automation...")
+                console.log("Player error detected, but NOT clicking round button to avoid reset loop")
+                console.log("Player errors are often temporary - continuing with automation...")
                 
                 // Just wait a moment for the error to potentially resolve itself
                 await this.page.waitForTimeout(2000)
@@ -398,9 +399,9 @@ class FillingPage{
                 const stillPresent = await this.playerErrorElement.isVisible({ timeout: 500 })
                 
                 if (!stillPresent) {
-                    console.log("✅ Player error resolved automatically")
+                    console.log("Player error resolved automatically")
                 } else {
-                    console.log("⏭️ Player error still present but continuing anyway")
+                    console.log("Player error still present but continuing anyway")
                     // Don't reset the challenge - just continue
                 }
             }
@@ -412,7 +413,7 @@ class FillingPage{
 
     async checkAndSolveCaptcha() {
         try {
-            console.log("🔍 Scanning page for reCAPTCHA...")
+            console.log("Scanning page for reCAPTCHA...")
             
             // Strategy 1: Wait a moment for page to stabilize
             await this.page.waitForTimeout(1000)
@@ -449,7 +450,7 @@ class FillingPage{
                         for (let i = 0; i < count; i++) {
                             const element = elements.nth(i)
                             if (await element.isVisible()) {
-                                console.log(`✅ Found potential CAPTCHA with selector: ${selector}`)
+                                console.log(`Found potential CAPTCHA with selector: ${selector}`)
                                 captchaElement = element
                                 usedSelector = selector
                                 break
@@ -464,11 +465,11 @@ class FillingPage{
             }
             
             if (!captchaElement) {
-                console.log("✅ No reCAPTCHA detected on page")
+                console.log("No reCAPTCHA detected on page")
                 return
             }
             
-            console.log(`🛑 RECAPTCHA DETECTED using selector: ${usedSelector}`)
+            console.log(`RECAPTCHA DETECTED using selector: ${usedSelector}`)
             console.log("Attempting to solve reCAPTCHA...")
             
             // Strategy 4: Multiple click approaches for the found element
@@ -476,13 +477,13 @@ class FillingPage{
                 // Method 1: Simple click
                 async () => {
                     await captchaElement.click({ timeout: 3000 })
-                    console.log("✅ Method 1: Simple click succeeded")
+                    console.log("Method 1: Simple click succeeded")
                 },
                 
                 // Method 2: Force click
                 async () => {
                     await captchaElement.click({ force: true, timeout: 3000 })
-                    console.log("✅ Method 2: Force click succeeded")
+                    console.log("Method 2: Force click succeeded")
                 },
                 
                 // Method 3: Click with position
@@ -497,14 +498,14 @@ class FillingPage{
                 // Method 4: Double click
                 async () => {
                     await captchaElement.dblclick({ timeout: 3000 })
-                    console.log("✅ Method 4: Double click succeeded")
+                    console.log("Method 4: Double click succeeded")
                 },
                 
                 // Method 5: Focus and press Enter
                 async () => {
                     await captchaElement.focus()
                     await this.page.keyboard.press('Enter')
-                    console.log("✅ Method 5: Focus + Enter succeeded")
+                    console.log("Method 5: Focus + Enter succeeded")
                 }
             ]
             
@@ -532,15 +533,15 @@ class FillingPage{
                 }
             }
             
-            console.log("⚠️ All reCAPTCHA solving methods attempted. Manual intervention may be needed.")
-            console.log("⏳ Waiting 5 seconds for potential manual solving...")
+            console.log("All reCAPTCHA solving methods attempted. Manual intervention may be needed.")
+            console.log("Waiting 5 seconds for potential manual solving...")
             await this.page.waitForTimeout(5000)
             
         } catch (error) {
-            console.log("❌ reCAPTCHA handling encountered error:", error.message)
+            console.log("reCAPTCHA handling encountered error:", error.message)
         }
         
-        console.log("🔄 Continuing with automation regardless of reCAPTCHA status...")
+        console.log("Continuing with automation regardless of reCAPTCHA status...")
     }
 
     // Simplified CAPTCHA method - just pause for manual intervention
@@ -557,7 +558,7 @@ class FillingPage{
                 // Just wait and let user solve it manually
                 await this.page.waitForTimeout(10000)
                 
-                console.log("✅ Continuing automation...")
+                console.log("Continuing automation...")
             }
         } catch (error) {
             // Ignore errors and continue
@@ -588,7 +589,7 @@ class FillingPage{
                         // Wait 30 seconds for manual solving
                         await this.page.waitForTimeout(30000)
                         
-                        console.log("✅ Resuming automation...")
+                        console.log("Resuming automation...")
                         return
                     }
                 }
@@ -600,7 +601,7 @@ class FillingPage{
 
     // Method to check what's currently on the page
     async checkPageStatus() {
-        console.log("📊 Current page status:")
+        console.log("Current page status:")
         console.log(`   URL: ${this.page.url()}`)
         
         try {
@@ -634,9 +635,9 @@ class FillingPage{
 
     // Alternative method - wait for manual start
     async waitForManualStart() {
-        console.log("⏸️ MANUAL START MODE")
-        console.log("👆 Please click the START button manually (NOT the Round button)")
-        console.log("⏳ Waiting 15 seconds for manual start...")
+        console.log("MANUAL START MODE")
+        console.log("Please click the START button manually (NOT the Round button)")
+        console.log("Waiting 15 seconds for manual start...")
         console.log("   The automation will continue automatically once you start")
         
         // Wait for manual intervention
@@ -647,12 +648,12 @@ class FillingPage{
         const count = await inputFields.count()
         
         if (count > 0) {
-            console.log(`✅ Manual start successful! Found ${count} input fields`)
+            console.log(`Manual start successful! Found ${count} input fields`)
         } else {
-            console.log("⚠️ No input fields found - continuing anyway")
+            console.log("No input fields found - continuing anyway")
         }
         
-        console.log("🔄 Resuming automation...")
+        console.log("Resuming automation...")
     }
 }
     

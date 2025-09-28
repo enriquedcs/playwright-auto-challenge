@@ -53,7 +53,7 @@ test('The Automation Challenge (Stealth Mode)', async () =>
             ],
         })
         
-        // 2. Create a new page from the stealthy browser
+        // Create a new page from the stealthy browser
         page = await browser.newPage()
     
         
@@ -80,7 +80,7 @@ test('The Automation Challenge (Stealth Mode)', async () =>
             await fillingPage.startChallenge()
         } catch (startError) {
             console.error("Automatic start failed:", startError.message)
-            console.log("🔄 Switching to manual start mode...")
+            console.log("Switching to manual start mode...")
             
             // Use manual start as fallback
             await fillingPage.waitForManualStart()
@@ -91,10 +91,10 @@ test('The Automation Challenge (Stealth Mode)', async () =>
 
         // Don't check for CAPTCHA/errors immediately after starting
         // This can interfere with the challenge initialization
-        console.log("⏭️ Skipping initial CAPTCHA/error checks to avoid interference")
+        console.log("Skipping initial CAPTCHA/error checks to avoid interference")
 
         // Wait for challenge to start - try multiple indicators
-        console.log("⏳ Waiting for challenge to begin...")
+        console.log("Waiting for challenge to begin...")
         try {
             // Try multiple selectors that might indicate the challenge has started
             const challengeIndicators = [
@@ -109,26 +109,26 @@ test('The Automation Challenge (Stealth Mode)', async () =>
             for (const selector of challengeIndicators) {
                 try {
                     await page.waitForSelector(selector, { timeout: 3000 })
-                    console.log(`✅ Challenge detected using selector: ${selector}`)
+                    console.log(`Challenge detected using selector: ${selector}`)
                     challengeStarted = true
                     break
                 } catch (e) {
-                    console.log(`⏳ Selector '${selector}' not found, trying next...`)
+                    console.log(`Selector '${selector}' not found, trying next...`)
                 }
             }
             
             if (!challengeStarted) {
-                console.log("⚠️ Could not detect challenge start with standard selectors")
+                console.log("Could not detect challenge start with standard selectors")
                 
                 // Wait a bit more and continue anyway
                 await page.waitForTimeout(5000)
-                console.log("⏭️ Continuing with automation anyway...")
+                console.log("Continuing with automation anyway...")
             }
         } catch (error) {
-            console.error("❌ Error waiting for challenge start:", error.message)
+            console.error("Error waiting for challenge start:", error.message)
             
             // Don't fail the test, just continue
-            console.log("⏭️ Continuing with automation despite detection issues...")
+            console.log("Continuing with automation despite detection issues...")
         }
 
         // Debug the form structure to understand the actual DOM
@@ -207,7 +207,7 @@ test('The Automation Challenge (Stealth Mode)', async () =>
         // Check for the successful completion message or elements like the Leaderboard
         try {
             await expect(page.locator('text=Score 100% accuracy')).toBeVisible({ timeout: 30000 })
-            console.log("✅ Challenge completed successfully!")
+            console.log("Challenge completed successfully!")
         } catch (completionError) {
             // Try alternative completion indicators
             const alternativeSelectors = [
@@ -221,7 +221,7 @@ test('The Automation Challenge (Stealth Mode)', async () =>
             for (const selector of alternativeSelectors) {
                 try {
                     await expect(page.locator(selector)).toBeVisible({ timeout: 5000 })
-                    console.log(`✅ Challenge completed (found: ${selector})`)
+                    console.log(`Challenge completed (found: ${selector})`)
                     foundCompletion = true
                     break
                 } catch (e) {
@@ -230,7 +230,7 @@ test('The Automation Challenge (Stealth Mode)', async () =>
             }
             
             if (!foundCompletion) {
-                console.warn("⚠️ Could not verify completion message, but challenge may have completed")
+                console.warn("Could not verify completion message, but challenge may have completed")
                 // Don't fail the test, just warn
             }
         }
