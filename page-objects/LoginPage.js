@@ -1,3 +1,12 @@
+/**
+ * Author: Enrique A Decoss
+ * File: LoginPage.js
+ * Description: Page Object Model for the login funcionality of the Automation Challenge website.
+ *              Handles user authentication including login form interations and stealth mode navigation.
+ */
+
+const config = require('../tests/config.json');
+
 class LoginPage{
 
     constructor(page)
@@ -17,7 +26,7 @@ class LoginPage{
     }
 
     async goTo() {
-        await this.page.goto('https://www.theautomationchallenge.com/', { waitUntil: 'networkidle' });
+        await this.page.goto(config.URL1, { waitUntil: 'networkidle' });
     }
 
     // A method to perform the login action

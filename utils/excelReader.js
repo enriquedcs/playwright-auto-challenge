@@ -1,4 +1,9 @@
-// utils/excelReader.js
+/**
+ * Author: Enrique A Decoss
+ * File: excelReader.js
+ * Description: Utility module for reading Excel (.xlsx) files containg challenge data.
+ *              Parses spredsheet data and converts it to JSON format for automation procesing.
+ */
 
 const XLSX = require('xlsx'); 
 
