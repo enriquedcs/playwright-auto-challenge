@@ -3,7 +3,7 @@
  * Author: Enrique A Decoss
  * File: UIChallengetest.spec.js
  * Description: Main test automation script for the Automation Challege website.
- *              Automates the complete worklfow: login, form filling with Excel data,
+ *              Automates the complte worklfow: login, form filling with Excel data,
  *              CAPTCHA handeling, and challenge completion with 100% accuracy in under 4 minutes.
  */
 
